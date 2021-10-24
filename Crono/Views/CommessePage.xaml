@@ -1,0 +1,87 @@
+﻿<Page x:Class="Crono.Views.CommessePage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Crono.Views"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:command="http://www.galasoft.ch/mvvmlight"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:l="clr-namespace:Crono.Converter"
+             mc:Ignorable="d" DataContext="{Binding Path=CommesseViewModel, Source={StaticResource Locator}}">
+    <Page.Resources>
+        <l:Date_ddMMyyyy_Converter x:Key="Date_ddMMyyyy_Converter"></l:Date_ddMMyyyy_Converter>
+    </Page.Resources>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <command:EventToCommand Command="{Binding LoadedCommand, Mode=OneWay}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid x:Name="GridContainer">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="17"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Grid.Column="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal" Grid.Column="0" Margin="7,0,7,0">
+                <Label Content="Code:" VerticalAlignment="Center"></Label>
+                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" Text="{Binding FiltroCodice,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="140" Height="35" VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Grid.Column="1" Margin="7,0,7,0">
+                <Label Content="Technician:" VerticalAlignment="Center"></Label>
+                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" Text="{Binding FiltroTecnico,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150" Height="35" VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Grid.Column="2" Margin="7,0,7,0">
+                <Label Content="Maintenance" VerticalAlignment="Center"></Label>
+                <CheckBox IsChecked="{Binding FiltroManutenzione,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Grid.Column="3" Margin="7,0,7,0">
+                <Label Content="Operation" VerticalAlignment="Center"></Label>
+                <CheckBox IsChecked="{Binding FiltroIntervento,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Grid.Column="4" Margin="7,0,7,0">
+                <Label Content="Close" VerticalAlignment="Center"></Label>
+                <CheckBox IsChecked="{Binding FiltroChiusura,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Grid.Column="5" HorizontalAlignment="Right" Margin="7,0,7,0">
+                <Label Content="Show all phase from  " HorizontalAlignment="Right" VerticalAlignment="Center" ></Label>
+                <DatePicker Style="{StaticResource MaterialDesignFloatingHintDatePicker}" HorizontalAlignment="Right" VerticalAlignment="Center" SelectedDate="{Binding From}"></DatePicker>
+                <Label Content=" to " HorizontalAlignment="Right"  VerticalAlignment="Center" ></Label>
+                <DatePicker Style="{StaticResource MaterialDesignFloatingHintDatePicker}" HorizontalAlignment="Right" VerticalAlignment="Center" SelectedDate="{Binding To}"></DatePicker>
+                <Button Content="Show" HorizontalAlignment="Right" Foreground="White" Margin="40,0,10,0" Command="{Binding OpenReportCommand}"></Button>
+            </StackPanel>
+        </Grid>
+
+        <DataGrid ItemsSource="{Binding ListaCommesse}" CanUserAddRows="False" AutoGenerateColumns="False" VerticalScrollBarVisibility="Visible" Grid.Row="1" Grid.Column="0" Margin="0,0,0,40">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Code" IsReadOnly="True" Binding="{Binding Codice}" />
+                <DataGridTextColumn Header="Data" IsReadOnly="True" Binding="{Binding DataRegistrazione, Converter={StaticResource Date_ddMMyyyy_Converter}}" />
+                <DataGridTextColumn Header="Site" IsReadOnly="True" Binding="{Binding Cantiere}" Width="450"/>
+                <DataGridTextColumn Header="Technician" IsReadOnly="True" Binding="{Binding Tecnico}" />
+
+                <DataGridTemplateColumn Header="Show phase">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource MaterialDesignFlatButton}" Command="{Binding Path=DataContext.OpenFasiCommand, RelativeSource={RelativeSource AncestorType=Page}}" CommandParameter="{Binding}" >
+                                <materialDesign:PackIcon Kind="More" Foreground="Green" VerticalAlignment="Center" />
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Page>

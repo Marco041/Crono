@@ -1,0 +1,236 @@
+﻿<UserControl x:Class="Crono.Views.GantChart"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:cmd="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Platform"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:local="clr-namespace:Crono.Views"
+             xmlns:model="clr-namespace:Crono.ViewModel"
+             xmlns:l="clr-namespace:Crono.Converter"
+             mc:Ignorable="d" DataContext="{Binding Path=GantChartViewModel, Source={StaticResource Locator}}">
+
+    <UserControl.Resources>
+        <l:ThumbCenterWidthConverter x:Key="ThumbCenterWidthConverter"></l:ThumbCenterWidthConverter>
+        <l:ShowScrollBarHeightConverter x:Key="ShowScrollBarHeightConverter"></l:ShowScrollBarHeightConverter>
+        <l:ScrollBarWidthConverter x:Key="ScrollBarWidthConverter"></l:ScrollBarWidthConverter>
+        <l:ThumbCenterXConverter x:Key="ThumbCenterXConverter"></l:ThumbCenterXConverter>
+        <l:ThumbLeftConverter x:Key="ThumbLeftConverter"></l:ThumbLeftConverter>
+        <l:ThumbRightConverter x:Key="ThumbRightConverter"></l:ThumbRightConverter>
+        <l:VisibilityConverter x:Key="VisibilityConverter"></l:VisibilityConverter>
+        <l:InVisibilityConverter x:Key="InVisibilityConverter"></l:InVisibilityConverter>
+        <l:IncreaseWidthCanvasThumb x:Key="IncreaseWidthCanvasThumb"></l:IncreaseWidthCanvasThumb>
+        <l:DateConverter x:Key="DateConverter"></l:DateConverter>
+        <l:NotConverter x:Key="NotConverter"></l:NotConverter>
+    </UserControl.Resources>
+
+    <Canvas ScrollViewer.VerticalScrollBarVisibility="Visible" Name="CronoTaskCanvas" Height="{Binding Height}">
+        <TextBlock Text="Phases:" Canvas.Left="5" Canvas.Top="4" Panel.ZIndex="9999"></TextBlock>
+        
+        <!-- THis ItemControl shows rows lines -->
+        <ItemsControl Name="RowList" ItemsSource="{Binding Path=RowCollection}" >
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Canvas.Left" Value="{Binding X}" />
+                    <Setter Property="Canvas.Top" Value="{Binding Y}" />
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderThickness="0,0,0,1" BorderBrush="#eee" Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}}">
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- This ItemControl draws line constraints -->
+        <ItemsControl Name="CanvasControlConstraints" ItemsSource="{Binding Path=TaskBlocks}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Panel.ZIndex" Value="{Binding Zindex, Converter={StaticResource IncreaseWidthCanvasThumb}}" />
+                    <Setter Property="Canvas.Left" Value="0" />
+                    <Setter Property="Canvas.Top" Value="0" />
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <ItemsControl Name="CanvasControlConstraints" ItemsSource="{Binding Path=ConstraintList}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Canvas Panel.ZIndex="{Binding ZIndex}">
+                                    <!-- The first line start under the first task to the X coordinate of the second task minus the margin -->
+                                    <Line  X1="{Binding Xh1}" X2="{Binding Xh2}" Y1="{Binding Yh}" Y2="{Binding Yh}" Stroke="{Binding Color}" StrokeThickness="2">
+                                        <i:Interaction.Triggers>
+                                            <!-- Orange highlight of the contraint lines -->
+                                            <i:EventTrigger EventName="MouseEnter">
+                                                <cmd:EventToCommand Command="{Binding SelectItemCommand}" CommandParameter="{Binding Path=DataContext, ElementName=CanvasControlConstraints}" />
+                                            </i:EventTrigger>
+                                            <i:EventTrigger EventName="MouseLeave">
+                                                <cmd:EventToCommand Command="{Binding DeselectItemCommand}" CommandParameter="{Binding Path=DataContext, ElementName=CanvasControlConstraints}" />
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </Line>
+
+                                    <!-- The second constraint line goes down to the Y coordinate of the second task  -->
+                                    <Line X1="{Binding Xh2}" X2="{Binding Xh2}" Y1="{Binding Yh}" Y2="{Binding Yl}" Stroke="{Binding Color}" StrokeThickness="2">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="MouseEnter">
+                                                <cmd:EventToCommand Command="{Binding SelectItemCommand}" CommandParameter="{Binding Path=DataContext, ElementName=CanvasControlConstraints}" />
+                                            </i:EventTrigger>
+                                            <i:EventTrigger EventName="MouseLeave">
+                                                <cmd:EventToCommand Command="{Binding DeselectItemCommand}" CommandParameter="{Binding Path=DataContext, ElementName=CanvasControlConstraints}" />
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </Line>
+
+                                    <!-- The third constraint line close the line to the beginning of the second task minus the margin-->
+                                    <Line X1="{Binding Xh2}" X2="{Binding Xl1}" Y1="{Binding Yl}" Y2="{Binding Yl}" Stroke="{Binding Color}" StrokeThickness="2">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="MouseEnter">
+                                                <cmd:EventToCommand Command="{Binding SelectItemCommand}" CommandParameter="{Binding Path=DataContext, ElementName=CanvasControlConstraints}" />
+                                            </i:EventTrigger>
+                                            <i:EventTrigger EventName="MouseLeave">
+                                                <cmd:EventToCommand Command="{Binding DeselectItemCommand}" CommandParameter="{Binding Path=DataContext, ElementName=CanvasControlConstraints}" />
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </Line>
+                                </Canvas>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- This ItemControl draws the task as button -->
+        <ItemsControl Name="CanvasControl" ItemsSource="{Binding Path=TaskBlocks}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Canvas.Left" Value="{Binding X}" />
+                    <Setter Property="Canvas.Top" Value="{Binding Y}" />
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+
+                        <Button Style="{StaticResource MaterialDesignRaisedAccentButton}" materialDesign:ShadowAssist.ShadowDepth="Depth1" AllowDrop="True" DragEnter="bb_DragEnter" BorderBrush="#55555555"
+                                ToolTip="{Binding TaskModel.Intervento}" 
+                                materialDesign:RippleAssist.IsDisabled="True" Name="bb" Width="{Binding Width}" Background="{Binding Background}" Height="{Binding Height}">
+                            <i:Interaction.Triggers>
+                                <!-- drag&drop commands -->
+                                <i:EventTrigger EventName="DragOver">
+                                    <cmd:EventToCommand Command="{Binding Mode=OneWay, Path=DataContext.DragOverCommand,RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="DragLeave">
+                                    <cmd:EventToCommand Command="{Binding Mode=OneWay, Path=DataContext.DragLeaveCommand,RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="Drop">
+                                    <cmd:EventToCommand Command="{Binding Mode=OneWay, Path=DataContext.DropCommand,RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <Canvas>
+                                <!-- Thumb for resize of starting date -->
+                                <Thumb Visibility="{Binding DataContext.ReadOnlyMode, Converter={StaticResource InVisibilityConverter}, RelativeSource={RelativeSource AncestorType=UserControl}}" Cursor="SizeWE" Name="thumbLeft" Background="Transparent" Width="10" Height="20" Canvas.Left="{Binding Width, RelativeSource={RelativeSource AncestorType=Button}, Converter={StaticResource ThumbLeftConverter}}" Canvas.Top="-10">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="DragDelta">
+                                            <cmd:EventToCommand Command="{Binding Mode=OneWay, Path=DataContext.DragLeftCommand,RelativeSource={RelativeSource AncestorType=UserControl}}" PassEventArgsToCommand="True" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Thumb>
+
+                                <!-- Thumb for resize of ending date -->
+                                <Thumb Visibility="{Binding DataContext.ReadOnlyMode, Converter={StaticResource InVisibilityConverter}, RelativeSource={RelativeSource AncestorType=UserControl}}" Cursor="SizeWE" Name="thumbRight" Background="Transparent" Width="10" Height="20" Canvas.Left="{Binding Width, RelativeSource={RelativeSource AncestorType=Button}, Converter={StaticResource ThumbRightConverter}}" Canvas.Top="-10">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="DragDelta">
+                                            <cmd:EventToCommand Command="{Binding Mode=OneWay, Path=DataContext.DragRightCommand,RelativeSource={RelativeSource AncestorType=UserControl}}" PassEventArgsToCommand="True" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Thumb>
+
+                                <!-- Thumb to move the task -->
+                                <Thumb Visibility="{Binding DataContext.ReadOnlyMode, Converter={StaticResource InVisibilityConverter}, RelativeSource={RelativeSource AncestorType=UserControl}}" Name="thumbCenter" AllowDrop="True" Background="Transparent" Width="{Binding Width, RelativeSource={RelativeSource AncestorType=Button}, Converter={StaticResource ThumbCenterWidthConverter}}" Height="20" Canvas.Left="{Binding Width, RelativeSource={RelativeSource AncestorType=Button}, Converter={StaticResource ThumbCenterXConverter}}" Canvas.Top="-10">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="DragDelta">
+                                            <cmd:EventToCommand Command="{Binding Mode=OneWay, Path=DataContext.DragCommand,RelativeSource={RelativeSource AncestorType=UserControl}}" PassEventArgsToCommand="True" />
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="DragCompleted">
+                                            <cmd:EventToCommand Command="{Binding Mode=OneWay, Path=DataContext.DragCompletedCommand,RelativeSource={RelativeSource AncestorType=UserControl}}" PassEventArgsToCommand="True" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Thumb>
+                            </Canvas>
+                        </Button>
+                        <!-- Thumb for constraint line creation -->
+                        <Thumb IsEnabled="{Binding DataContext.ReadOnlyMode, Converter={StaticResource NotConverter}, RelativeSource={RelativeSource AncestorType=UserControl}}" Name="thumbints" PreviewMouseDown="thumbConstraints_PreviewMouseDown" Background="{Binding ConstraintBackground}" Width="4" Height="4" Margin="-2,0,0,0" Canvas.Top="-2">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseEnter">
+                                    <cmd:EventToCommand Command="{Binding HighlightConstraintThumbCommand}" PassEventArgsToCommand="True" />
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseLeave">
+                                    <cmd:EventToCommand Command="{Binding RestoreConstraintThumbCommand}" PassEventArgsToCommand="True" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Thumb>
+                        <!-- First part of contraint line from the thumb. A task is hidden if it hasn't constraint  -->
+                        <Canvas>
+                            <Line Name="ConstraintLine" X1="0" X2="3" Y1="10" Y2="10"  Stroke="Black" StrokeThickness="2" Visibility="{Binding ConstraintLine, Converter={StaticResource VisibilityConverter}}" ></Line>
+                            <Line Name="ConstraintLineDown"  X1="3" X2="3" Y1="9" Y2="26"  Stroke="Black" StrokeThickness="2" Visibility="{Binding ConstraintLine, Converter={StaticResource VisibilityConverter}}"></Line>
+                        </Canvas>
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- Task list in the left -->
+        <Rectangle Width="{Binding LeftListWidth}" Height="{Binding Height}" Fill="White" Canvas.Top="0" Canvas.Left="0"></Rectangle>
+
+        <!-- Name of the task and details button-->
+        <ItemsControl Name="CanvasControlList" ItemsSource="{Binding Path=TaskList}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Canvas.Left" Value="2" />
+                    <Setter Property="Canvas.Top" Value="{Binding Y}" />
+                    <Setter Property="Width" Value="{Binding LeftListWidth}" />
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderThickness="0,0,0,1" BorderBrush="#ddd" Margin="5,2,0,10">
+                        <DockPanel>
+                            <TextBlock Text="{Binding TaskModel.Intervento}" ToolTip="{Binding TaskModel.Intervento}" Width="185" ScrollViewer.VerticalScrollBarVisibility="Auto"></TextBlock>
+                            <Button Visibility="{Binding DataContext.ReadOnlyMode, Converter={StaticResource InVisibilityConverter}, RelativeSource={RelativeSource AncestorType=UserControl}}" ToolTip="Replay this phase" DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource MaterialDesignFlatButton}" Command="{Binding DataContext.OpenNewTaskModal, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Width="22" Height="26" BorderBrush="#555" BorderThickness="1,1,1,1" Margin="0,0,3,0">
+                                <materialDesign:PackIcon Kind="ContentCopy" Foreground="#555" Margin="-14,-1,0,0" />
+                            </Button>
+                            <Button ToolTip="Details" DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource MaterialDesignFlatButton}" Command="{Binding DataContext.OpenDetails, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Width="22" Height="26" BorderBrush="#555" BorderThickness="1,1,1,1" Margin="0,0,3,0">
+                                <materialDesign:PackIcon Kind="Pencil" Foreground="#555" Margin="-14,-1,0,0" />
+                            </Button>
+                        </DockPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Canvas>
+
+</UserControl>

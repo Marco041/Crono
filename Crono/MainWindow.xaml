@@ -1,0 +1,33 @@
+﻿<Window x:Class="Crono.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Crono"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:l="clr-namespace:Crono.Converter"
+        xmlns:model="clr-namespace:Crono.ViewModel"
+        xmlns:controls="clr-namespace:Crono.Views"
+        xmlns:command="http://www.galasoft.ch/mvvmlight"
+        mc:Ignorable="d"
+        Name="MWindow" SizeChanged="Window_SizeChanged"
+    DataContext="{Binding Main, Source={StaticResource Locator}}" 
+         Width="{Binding ResWidth, Mode=TwoWay}" Height="{Binding ResHeight, Mode=TwoWay}">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <command:EventToCommand Command="{Binding LoadedCommand, Mode=OneWay}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Window.Resources>
+        <l:ThumbCenterWidthConverter x:Key="ThumbCenterWidthConverter"></l:ThumbCenterWidthConverter>
+        <l:ShowScrollBarHeightConverter x:Key="ShowScrollBarHeightConverter"></l:ShowScrollBarHeightConverter>
+        <l:ScrollBarWidthConverter x:Key="ScrollBarWidthConverter"></l:ScrollBarWidthConverter>
+        <l:ThumbCenterXConverter x:Key="ThumbCenterXConverter"></l:ThumbCenterXConverter>
+        <l:ThumbLeftConverter x:Key="ThumbLeftConverter"></l:ThumbLeftConverter>
+        <l:ThumbRightConverter x:Key="ThumbRightConverter"></l:ThumbRightConverter>
+        <l:VisibilityConverter x:Key="VisibilityConverter"></l:VisibilityConverter>
+        <l:IncreaseWidthCanvasThumb x:Key="IncreaseWidthCanvasThumb"></l:IncreaseWidthCanvasThumb>
+        <l:DateConverter x:Key="DateConverter"></l:DateConverter>
+    </Window.Resources>
+    <Frame Name="MainFrame" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="{Binding ResWidth, Mode=TwoWay}" Height="{Binding ResHeight, Mode=TwoWay}" NavigationUIVisibility="Hidden"></Frame>
+</Window>
