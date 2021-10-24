@@ -1,5 +1,5 @@
 # Crono
-A simple gantt chart application in WPF.
+A simple gantt chart application in WPF with .NET framework 4.5.1.
 
 Can work with MSSQL or in memory repository.
 
